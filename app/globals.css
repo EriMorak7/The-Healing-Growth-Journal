@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FAF7F2;
+  --foreground: #22160D;
+  --primary-green: #283E2C;
+  --primary-brown: #4F3925;
+  --accent-warm: #BD7350;
+  --card-bg: #FFFFFF;
+  --border-subtle: #E6DCCE;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Editorial selection highlight */
+::selection {
+  background-color: #CBDECE;
+  color: #1A281E;
+}
+
+/* Subtle editorial scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4ECE0;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4B19B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A3845F;
+}
+
+/* Editorial typography accents */
+.editorial-serif {
+  font-family: var(--font-serif), "Playfair Display", Georgia, serif;
+}
+
+.editorial-reading {
+  font-family: var(--font-editorial), "Newsreader", Lora, Georgia, serif;
+}
+
+.editorial-quote {
+  font-family: var(--font-editorial), "Newsreader", Georgia, serif;
+  font-style: italic;
+  position: relative;
+}
+
+.editorial-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.editorial-divider::before,
+.editorial-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #E6DCCE;
+}
+
+.editorial-divider:not(:empty)::before {
+  margin-right: 1.5rem;
+}
+
+.editorial-divider:not(:empty)::after {
+  margin-left: 1.5rem;
+}
+
+/* Subtle paper texture aesthetic */
+.paper-card {
+  background-color: #FFFFFF;
+  border: 1px solid #EAE0D1;
+  box-shadow: 0 2px 12px -2px rgba(40, 62, 44, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.paper-card:hover {
+  border-color: #D3BEA1;
+  box-shadow: 0 8px 24px -4px rgba(40, 62, 44, 0.08);
+}

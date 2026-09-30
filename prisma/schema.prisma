@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String?
+  role         String    @default("CUSTOMER") // "ADMIN" | "CUSTOMER"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  orders       Order[]
+}
+
+model Category {
+  id           String            @id @default(cuid())
+  name         String            @unique
+  slug         String            @unique
+  description  String?
+  displayOrder Int               @default(0)
+  articles     ArticleCategory[]
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  slug     String       @unique
+  articles ArticleTag[]
+}
+
+model Series {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  articles    Article[]
+}
+
+model Article {
+  id             String            @id @default(cuid())
+  title          String
+  slug           String            @unique
+  excerpt        String
+  body           String
+  featuredImage  String?
+  authorName     String            @default("Glory")
+  readingTime    String            @default("4 min read")
+  isPublished    Boolean           @default(true)
+  publishedAt    DateTime          @default(now())
+  isSundayLove   Boolean           @default(false)
+  isFeatured     Boolean           @default(false)
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  seriesId       String?
+  series         Series?           @relation(fields: [seriesId], references: [id])
+  categories     ArticleCategory[]
+  tags           ArticleTag[]
+  pathwayItems   PathwayItem[]
+}
+
+model ArticleCategory {
+  articleId  String
+  categoryId String
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, categoryId])
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+}
+
+model Pathway {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  slug         String        @unique
+  headline     String
+  description  String
+  displayOrder Int           @default(0)
+  items        PathwayItem[]
+}
+
+model PathwayItem {
+  id        String   @id @default(cuid())
+  pathwayId String
+  articleId String?
+  title     String
+  blurb     String
+  order     Int      @default(0)
+  pathway   Pathway  @relation(fields: [pathwayId], references: [id], onDelete: Cascade)
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+}
+
+model SeoPage {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  question       String
+  intro          String
+  body           String
+  prompts        String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  slug          String      @unique
+  tagline       String?
+  description   String
+  whoItsFor     String?
+  whatsIncluded String?
+  price         Float
+  currency      String      @default("NGN")
+  mockupImage   String?
+  fileUrl       String?
+  isPublished   Boolean     @default(true)
+  isFeatured    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customerEmail     String
+  customerName      String?
+  totalAmount       Float
+  currency          String      @default("NGN")
+  status            String      @default("PENDING")
+  paystackReference String?     @unique
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
