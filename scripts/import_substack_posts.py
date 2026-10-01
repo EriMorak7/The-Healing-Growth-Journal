@@ -3,7 +3,18 @@ import os
 import re
 import urllib.request
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def to_ms(value):
+    """Prisma + SQLite expects DateTime as integer milliseconds since epoch."""
+    if isinstance(value, (int, float)):
+        return int(value)
+    v = str(value).strip().replace("Z", "+00:00")
+    dt = datetime.fromisoformat(v)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return int(dt.timestamp() * 1000)
 
 def download_image(url, target_path):
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
@@ -78,7 +89,7 @@ def main():
     tag_map = {slug: id for id, slug in tag_rows}
 
     imported_count = 0
-    now = datetime.utcnow().isoformat()
+    now = int(datetime.now(timezone.utc).timestamp() * 1000)
 
     for p in posts:
         title = p.get("title", "").strip()
@@ -91,7 +102,7 @@ def main():
         body_text = clean_html_body(body_html)
         wordcount = p.get("wordcount", len(body_text.split()))
         reading_time = f"{max(1, round(wordcount / 200))} min read"
-        post_date = p.get("post_date") or now
+        post_date = to_ms(p["post_date"]) if p.get("post_date") else now
 
         # Determine if Sunday Love Series
         title_upper = title.upper()
