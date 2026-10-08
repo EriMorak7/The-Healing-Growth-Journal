@@ -20,13 +20,20 @@ export default function Header() {
         <div className="flex items-center justify-between py-5 border-b border-[#EAE0D1]/60">
           {/* Brand Masthead */}
           <div className="flex-1">
-            <NextLink href="/" className="inline-block group">
-              <span className="block text-2xl sm:text-3xl md:text-4xl font-serif tracking-tight text-[#22160D] group-hover:text-[#283E2C] transition-colors">
-                The Healing & Growth Journal
-              </span>
-              <span className="block text-xs uppercase tracking-[0.2em] text-[#866746] font-sans mt-0.5 font-medium">
-                Reflections • Grief Support • Personal Growth • Sunday Love
-              </span>
+            <NextLink href="/" className="inline-flex items-center gap-4 sm:gap-5 group">
+              <img
+                src={SITE_CONFIG.logoUrl}
+                alt="The Healing and Growth Journal Logo"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-[#D3BEA1] object-cover shadow-md shrink-0 transition-transform group-hover:scale-105"
+              />
+              <div>
+                <span className="block text-2xl sm:text-3xl md:text-4xl font-serif tracking-tight text-[#22160D] group-hover:text-[#283E2C] transition-colors leading-none">
+                  The Healing & Growth Journal
+                </span>
+                <span className="block text-xs uppercase tracking-[0.2em] text-[#866746] font-sans mt-2 font-medium">
+                  {SITE_CONFIG.heroText}
+                </span>
+              </div>
             </NextLink>
           </div>
 
@@ -36,10 +43,10 @@ export default function Header() {
               href={SITE_CONFIG.substackUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 text-xs uppercase tracking-wider font-semibold rounded-sm bg-[#4F3925] text-[#FAF7F2] hover:bg-[#283E2C] transition-all shadow-sm hover:shadow"
+              className="hidden md:inline-flex items-center gap-2 px-6 py-3 text-sm uppercase tracking-wider font-bold rounded-sm bg-[#4F3925] text-[#FAF7F2] hover:bg-[#283E2C] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
-              <span>Join on Substack</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>Subscribe on Substack</span>
+              <ArrowUpRight className="w-4 h-4" />
             </a>
 
             {/* Mobile Hamburger Button */}
@@ -100,7 +107,7 @@ export default function Header() {
               href={SITE_CONFIG.substackUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 text-xs uppercase tracking-widest font-semibold rounded-sm bg-[#283E2C] text-[#FAF7F2] shadow-sm"
+              className="flex items-center justify-center gap-2 w-full py-4 text-sm uppercase tracking-widest font-bold rounded-sm bg-[#283E2C] text-[#FAF7F2] shadow-md"
             >
               <span>Subscribe on Substack</span>
               <ArrowUpRight className="w-4 h-4" />

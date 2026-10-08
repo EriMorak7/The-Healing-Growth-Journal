@@ -19,11 +19,44 @@ async function getStartHereData() {
         include: { category: true },
       },
     },
-    take: 12,
+    take: 50,
   });
 
   return { articles };
 }
+
+const PATHWAY_ARTICLE_MAP: Record<string, string[]> = {
+  grieving: [
+    "my-nightmare-and-my-jewel",
+    "learning-how-to-carry-what-changed-you",
+    "her-tears-healed-my-heart",
+  ],
+  heartbreak: [
+    "if-you-came-home",
+    "the-letter-that-healed-my-heart-based",
+    "beyond-the-ecstasy-love-needs-more",
+  ],
+  "difficult-seasons": [
+    "stolen-childhood-the-weight-you-were",
+    "finding-strength-again",
+    "micro-devotional-3be",
+  ],
+  "starting-over": [
+    "the-quiet-art-of-starting-over",
+    "yours-to-nurse",
+    "eat-little-sleep-little-pray-more",
+  ],
+  "feeling-lost": [
+    "healing-is-strange-just-as-love-is",
+    "the-words-i-could-no-longer-keep",
+    "you-may-have-wandered-his-love-did",
+  ],
+  "intentional-growth": [
+    "the-race-before-dusk-why-you-burnout",
+    "the-sunday-love-series-how-to-love",
+    "the-sunday-love-series-i-found-a",
+  ],
+};
 
 export default async function StartHerePage() {
   const { articles } = await getStartHereData();
@@ -84,43 +117,60 @@ export default async function StartHerePage() {
             {/* Curated Recommendations for this Pathway */}
             <div className="space-y-4">
               <h3 className="text-xs uppercase tracking-widest text-[#866746] font-semibold">
-                Recommended Reading & Prompts
+                Recommended Reading & Reflections
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {articles.slice(0, 2).map((article) => (
-                  <div
-                    key={article.id}
-                    className="p-5 bg-[#FAF7F2] border border-[#EAE0D1] rounded-sm flex flex-col justify-between hover:border-[#D3BEA1] transition-colors"
-                  >
-                    <div className="space-y-2">
-                      <span className="text-[10px] uppercase tracking-widest font-semibold text-[#283E2C]">
-                        Selected Essay
-                      </span>
-                      <h4 className="font-serif text-lg text-[#22160D]">
-                        <Link href={`/journal/${article.slug}`}>
-                          {article.title}
-                        </Link>
-                      </h4>
-                      <p className="text-xs text-[#6A4F35] line-clamp-2 leading-relaxed">
-                        {article.excerpt}
-                      </p>
-                    </div>
-                    <div className="pt-4 mt-4 border-t border-[#EAE0D1]/60 flex items-center justify-between">
-                      <span className="text-xs text-[#866746]">
-                        {article.readingTime}
-                      </span>
-                      <Link
-                        href={`/journal/${article.slug}`}
-                        className="text-xs font-semibold uppercase tracking-wider text-[#283E2C] inline-flex items-center gap-1 hover:underline"
+              {(() => {
+                const targetSlugs = PATHWAY_ARTICLE_MAP[pathway.slug] || [];
+                const pathwayArticles = articles.filter((a) => targetSlugs.includes(a.slug));
+                const displayArticles = pathwayArticles.length > 0 ? pathwayArticles : articles.slice(0, 2);
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayArticles.map((article) => (
+                      <div
+                        key={article.id}
+                        className="p-5 bg-[#FAF7F2] border border-[#EAE0D1] rounded-sm flex flex-col justify-between hover:border-[#D3BEA1] transition-colors overflow-hidden"
                       >
-                        <span>Read</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
+                        {article.featuredImage && (
+                          <Link href={`/journal/${article.slug}`} className="block -m-5 mb-4 overflow-hidden rounded-t-sm">
+                            <img
+                              src={article.featuredImage}
+                              alt={article.title}
+                              className="w-full h-36 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                          </Link>
+                        )}
+                        <div className="space-y-2">
+                          <span className="text-[10px] uppercase tracking-widest font-semibold text-[#283E2C]">
+                            Selected Piece
+                          </span>
+                          <h4 className="font-serif text-base text-[#22160D] line-clamp-2">
+                            <Link href={`/journal/${article.slug}`}>
+                              {article.title}
+                            </Link>
+                          </h4>
+                          <p className="text-xs text-[#6A4F35] line-clamp-2 leading-relaxed">
+                            {article.excerpt}
+                          </p>
+                        </div>
+                        <div className="pt-4 mt-4 border-t border-[#EAE0D1]/60 flex items-center justify-between">
+                          <span className="text-xs text-[#866746]">
+                            {article.readingTime}
+                          </span>
+                          <Link
+                            href={`/journal/${article.slug}`}
+                            className="text-xs font-semibold uppercase tracking-wider text-[#283E2C] inline-flex items-center gap-1 hover:underline"
+                          >
+                            <span>Read</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
 
             {/* Related Evergreen SEO Prompt Link */}

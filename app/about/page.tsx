@@ -28,18 +28,25 @@ export default function AboutPage() {
       {/* Founder Intro Portrait Block */}
       <div className="paper-card p-8 sm:p-12 space-y-8 bg-[#FAF7F2]">
         <div className="flex flex-col sm:flex-row items-center gap-8 border-b border-[#EAE0D1] pb-8">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#E5EDE6] border-2 border-[#283E2C] flex items-center justify-center text-3xl font-serif text-[#283E2C] shrink-0 shadow-inner">
-            Glory
-          </div>
+          <img
+            src="/images/glory-avatar.jpg"
+            alt="Glory, Counselling Psychologist"
+            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-[#283E2C] object-cover shadow-md shrink-0"
+          />
           <div className="space-y-2 text-center sm:text-left">
-            <h2 className="text-2xl sm:text-3xl font-serif text-[#22160D]">
-              Glory
-            </h2>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h2 className="text-2xl sm:text-3xl font-serif text-[#22160D]">
+                Glory
+              </h2>
+              <span className="px-2.5 py-0.5 text-[11px] uppercase tracking-wider font-semibold rounded-full bg-[#E5EDE6] text-[#283E2C]">
+                Counselling Psychologist
+              </span>
+            </div>
             <p className="text-xs uppercase tracking-widest text-[#866746] font-sans font-semibold">
-              Founder & Writer • The Healing and Growth Journal
+              Founder & Writer • Over 440+ Subscribers on Substack
             </p>
-            <p className="text-sm font-sans text-[#4F3925] leading-relaxed pt-1">
-              Writing from lived experience, sitting with people in their sorrow, and creating words that provide comfort, courage, and direction.
+            <p className="text-sm font-sans text-[#4F3925] leading-relaxed pt-1 max-w-xl">
+              A safe space to heal, love and grow. Helping people understand themselves, love better, heal deeper, and grow intentionally through reflective articles, poems, practical guides, prompts and letters.
             </p>
           </div>
         </div>

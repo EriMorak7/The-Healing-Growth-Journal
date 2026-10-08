@@ -20,6 +20,8 @@ export async function generateMetadata({ params }: ArticleSlugProps) {
 
   if (!article) return { title: "Article Not Found" };
 
+  const ogUrl = `/api/og?title=${encodeURIComponent(article.title)}&author=${encodeURIComponent(article.authorName)}&isSundayLove=${article.isSundayLove}`;
+
   return {
     title: article.title,
     description: article.excerpt,
@@ -28,7 +30,21 @@ export async function generateMetadata({ params }: ArticleSlugProps) {
       description: article.excerpt,
       type: "article",
       publishedTime: article.publishedAt.toISOString(),
-      authors: ["Glory"],
+      authors: [article.authorName],
+      images: [
+        {
+          url: ogUrl,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.excerpt,
+      images: [ogUrl],
     },
   };
 }
@@ -100,7 +116,16 @@ export default async function ArticlePage({ params }: ArticleSlugProps) {
         </Link>
       </div>
 
-      {/* Article Header */}
+      {/* Cover Image */}
+      {article.featuredImage && (
+        <div className="relative w-full aspect-[16/9] sm:aspect-[2/1] overflow-hidden rounded-sm border border-[#EAE0D1] shadow-md">
+          <img
+            src={article.featuredImage}
+            alt={article.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <header className="space-y-6 border-b border-[#EAE0D1] pb-10">
         <div className="flex flex-wrap items-center gap-3">
           {article.isSundayLove && (
@@ -155,18 +180,33 @@ export default async function ArticlePage({ params }: ArticleSlugProps) {
 
       {/* Article Body */}
       <div className="prose prose-stone max-w-none text-[#22160D] font-editorial text-xl sm:text-2xl leading-[1.8] space-y-8">
-        {article.body.split("\n\n").map((paragraph, index) => {
+        {article.body.split("\n\n").map((block, index) => {
+          const trimmed = block.trim();
+          if (!trimmed) return null;
+
+          // Render figure/img blocks as raw HTML
+          if (trimmed.startsWith("<figure") || trimmed.startsWith("<img")) {
+            return (
+              <div
+                key={index}
+                dangerouslySetInnerHTML={{ __html: trimmed }}
+              />
+            );
+          }
+
+          // First text paragraph gets editorial drop cap
           if (index === 0) {
             return (
               <p
                 key={index}
                 className="first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#283E2C] first-letter:leading-none text-[#362618]"
               >
-                {paragraph}
+                {trimmed}
               </p>
             );
           }
-          return <p key={index}>{paragraph}</p>;
+
+          return <p key={index}>{trimmed}</p>;
         })}
       </div>
 
@@ -218,6 +258,7 @@ export default async function ArticlePage({ params }: ArticleSlugProps) {
                 publishedAt={rel.publishedAt}
                 readingTime={rel.readingTime}
                 isSundayLove={rel.isSundayLove}
+                featuredImage={rel.featuredImage}
                 categories={rel.categories.map((c) => ({
                   name: c.category.name,
                   slug: c.category.slug,

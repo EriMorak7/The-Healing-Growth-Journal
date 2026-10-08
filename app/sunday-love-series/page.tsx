@@ -9,6 +9,25 @@ export const metadata = {
   title: "The Sunday Love Series — Letters, Poems & Reflections",
   description:
     "A weekly sanctuary of love articles, tender letters, and contemplative poetry. Published every Sunday morning by Glory.",
+  openGraph: {
+    title: "The Sunday Love Series — Letters, Poems & Reflections",
+    description:
+      "A weekly sanctuary of love articles, tender letters, and contemplative poetry. Published every Sunday morning by Glory.",
+    images: [
+      {
+        url: "/api/og?title=The%20Sunday%20Love%20Series&isSundayLove=true",
+        width: 1200,
+        height: 630,
+        alt: "The Sunday Love Series",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Sunday Love Series",
+    description: "A weekly sanctuary of love articles, tender letters, and contemplative poetry.",
+    images: ["/api/og?title=The%20Sunday%20Love%20Series&isSundayLove=true"],
+  },
 };
 
 async function getSundayLoveData() {
@@ -90,6 +109,7 @@ export default async function SundayLovePage() {
                 publishedAt={article.publishedAt}
                 readingTime={article.readingTime}
                 isSundayLove={true}
+                featuredImage={article.featuredImage}
                 categories={article.categories.map((c) => ({
                   name: c.category.name,
                   slug: c.category.slug,

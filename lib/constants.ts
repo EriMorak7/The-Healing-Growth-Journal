@@ -1,9 +1,16 @@
 export const SITE_CONFIG = {
   name: "The Healing and Growth Journal",
-  tagline: "A place to heal, love, and grow.",
-  vision: "To help people navigate difficult seasons in life without losing themselves.",
+  tagline: "A safe space to heal, love, and grow.",
+  heroText: "Thoughts for your mind, stories for your journey and letters written with Love",
+  vision: "To help people understand themselves, love better, heal deeper, and grow intentionally.",
   author: "Glory",
+  credentials: "Counselling Psychologist",
+  bio: "A safe space to heal, love and grow. I’m a counselling psychologist who helps people understand themselves, love better, heal deeper, and grow intentionally through reflective articles, poems, practical guides, prompts and letters.",
   substackUrl: "https://thehealingandgrowthjournal.substack.com",
+  substackHandle: "@thehealingandgrowthjournal",
+  subscriberCount: "440+",
+  avatarUrl: "/images/glory-avatar.jpg",
+  logoUrl: "/images/journal-logo.png",
   socials: {
     instagram: "https://instagram.com",
     twitter: "https://twitter.com",

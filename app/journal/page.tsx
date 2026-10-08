@@ -190,6 +190,7 @@ export default async function JournalPage({ searchParams }: JournalPageProps) {
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               isSundayLove={article.isSundayLove}
+              featuredImage={article.featuredImage}
               categories={article.categories.map((c) => ({
                 name: c.category.name,
                 slug: c.category.slug,

@@ -23,11 +23,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Brand Column */}
           <div className="md:col-span-4 space-y-4">
-            <h3 className="text-2xl font-serif text-[#FAF7F2] tracking-tight">
-              {SITE_CONFIG.name}
-            </h3>
+            <div className="flex items-center gap-3">
+              <img
+                src={SITE_CONFIG.logoUrl}
+                alt="Logo"
+                className="w-10 h-10 rounded-full border border-[#866746] object-cover"
+              />
+              <h3 className="text-2xl font-serif text-[#FAF7F2] tracking-tight">
+                {SITE_CONFIG.name}
+              </h3>
+            </div>
+            <p className="text-xs uppercase tracking-[0.15em] text-[#A6C4AA] font-sans font-medium">
+              {SITE_CONFIG.heroText}
+            </p>
             <p className="text-sm font-sans text-[#BCA17E] leading-relaxed">
-              A quiet, thoughtful space dedicated to emotional healing, self-discovery, grief support, and intentional growth. Written from lived experience, offered with warmth and tenderness.
+              By Glory, Counselling Psychologist. A safe space to help people understand themselves, love better, heal deeper, and grow intentionally through reflective articles, poems, and weekly Sunday letters.
             </p>
             <div className="pt-2">
               <a
@@ -36,7 +46,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-semibold text-[#CBDECE] hover:text-white transition-colors"
               >
-                <span>Read the newsletter on Substack</span>
+                <span>Join {SITE_CONFIG.subscriberCount} readers on Substack</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </div>

@@ -18,9 +18,29 @@ export async function generateMetadata({ params }: PromptPageProps) {
 
   if (!page) return { title: "Prompt Guide Not Found" };
 
+  const ogUrl = `/api/og?title=${encodeURIComponent(page.title)}&category=Journal%20Prompts`;
+
   return {
     title: page.title,
     description: page.intro,
+    openGraph: {
+      title: page.title,
+      description: page.intro,
+      images: [
+        {
+          url: ogUrl,
+          width: 1200,
+          height: 630,
+          alt: page.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: page.title,
+      description: page.intro,
+      images: [ogUrl],
+    },
   };
 }
 

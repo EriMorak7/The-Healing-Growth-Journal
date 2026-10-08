@@ -14,7 +14,7 @@ async function getHomeData() {
   const [articles, products] = await Promise.all([
     db.article.findMany({
       where: { isPublished: true },
-      take: 4,
+      take: 6,
       orderBy: { publishedAt: "desc" },
       include: {
         categories: {
@@ -40,49 +40,63 @@ export default async function HomePage() {
       {/* 5.1 Hero Section */}
       <section className="relative pt-12 md:pt-20 pb-16 md:pb-24 border-b border-[#EAE0D1] bg-gradient-to-b from-[#FAF7F2] via-[#F4ECE0]/50 to-[#FAF7F2]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5EDE6] text-[#283E2C] text-xs uppercase tracking-[0.2em] font-medium font-sans">
-            <Feather className="w-3.5 h-3.5" />
-            <span>Welcome to the Sanctuary</span>
+          {/* Centered Large Brand Logo Emblem */}
+          <div className="flex flex-col items-center justify-center gap-3">
+            <img
+              src={SITE_CONFIG.logoUrl}
+              alt="The Healing and Growth Journal Logo"
+              className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-[#EAE0D1] object-cover shadow-lg hover:scale-105 transition-transform"
+            />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E5EDE6] text-[#283E2C] text-xs uppercase tracking-[0.2em] font-medium font-sans">
+              <Feather className="w-3.5 h-3.5" />
+              <span>By Glory • Counselling Psychologist</span>
+            </div>
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-[#22160D] tracking-tight leading-[1.1] max-w-4xl mx-auto">
-            A place to heal, <br className="hidden sm:inline" />
+            A safe space to heal, <br className="hidden sm:inline" />
             <span className="italic font-editorial text-[#283E2C]">love</span>, and grow.
           </h1>
+
+          <p className="text-xs uppercase tracking-[0.25em] text-[#866746] font-sans font-semibold">
+            {SITE_CONFIG.heroText}
+          </p>
 
           <p className="text-base sm:text-lg md:text-xl font-editorial text-[#4F3925] max-w-2xl mx-auto leading-relaxed">
             Honest reflections, tender letters, and guided resources for anyone moving through grief, heartbreak, quiet transitions, and the slow courage of becoming.
           </p>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* Action CTAs: Prominent Subscribe on Substack + Start Here + Read the Journal */}
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href={SITE_CONFIG.substackUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-9 py-4 text-sm sm:text-base uppercase tracking-widest font-bold rounded-sm bg-[#283E2C] text-[#FAF7F2] hover:bg-[#1D2D20] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+              <span>Subscribe on Substack</span>
+              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </a>
             <Link
               href="/start-here"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs uppercase tracking-widest font-semibold rounded-sm bg-[#283E2C] text-[#FAF7F2] hover:bg-[#1D2D20] transition-all shadow-md hover:shadow-lg"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 text-sm uppercase tracking-widest font-semibold rounded-sm bg-[#4F3925] text-[#FAF7F2] hover:bg-[#362618] transition-all shadow-md hover:shadow-lg"
             >
               <Compass className="w-4 h-4" />
               <span>Start Here</span>
             </Link>
             <Link
               href="/journal"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs uppercase tracking-widest font-semibold rounded-sm bg-[#FAF7F2] text-[#4F3925] border border-[#D3BEA1] hover:bg-[#EAE0D1] transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 text-sm uppercase tracking-widest font-semibold rounded-sm bg-[#FAF7F2] text-[#4F3925] border border-[#D3BEA1] hover:bg-[#EAE0D1] transition-all"
             >
               <BookOpen className="w-4 h-4" />
               <span>Read the Journal</span>
             </Link>
           </div>
 
-          {/* Quick Substack Banner */}
-          <div className="pt-6">
+          {/* Substack Social Proof Strip */}
+          <div className="pt-2">
             <p className="text-xs text-[#866746] font-sans">
-              Looking for weekly Sunday letters?{" "}
-              <a
-                href={SITE_CONFIG.substackUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-[#283E2C] font-semibold inline-flex items-center gap-0.5"
-              >
-                Join our community on Substack <ArrowUpRight className="w-3 h-3" />
-              </a>
+              Join <span className="font-semibold text-[#283E2C]">{SITE_CONFIG.subscriberCount} thoughtful readers</span> receiving free weekly Sunday morning letters, poems, and guided journal prompts.
             </p>
           </div>
         </div>
@@ -146,6 +160,7 @@ export default async function HomePage() {
               readingTime={article.readingTime}
               isSundayLove={article.isSundayLove}
               featured={idx === 0}
+              featuredImage={article.featuredImage}
               categories={article.categories.map((c) => ({
                 name: c.category.name,
                 slug: c.category.slug,
@@ -170,8 +185,8 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SIX_PATHWAYS.map((pathway) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {SIX_PATHWAYS.slice(0, 3).map((pathway) => (
               <div
                 key={pathway.slug}
                 className="paper-card p-6 sm:p-8 flex flex-col justify-between group"
@@ -263,7 +278,16 @@ export default async function HomePage() {
 
       {/* 5.7 Closing Brand Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 pt-8">
-        <div className="w-12 h-[1px] bg-[#C4B19B] mx-auto" />
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src="/images/glory-avatar.jpg"
+            alt="Glory"
+            className="w-20 h-20 rounded-full border-2 border-[#283E2C] object-cover shadow-sm"
+          />
+          <span className="text-xs uppercase tracking-[0.2em] text-[#866746] font-semibold">
+            Glory • Counselling Psychologist & Writer
+          </span>
+        </div>
         <h3 className="text-2xl sm:text-3xl font-serif text-[#22160D] italic">
           &ldquo;I don&apos;t write because I have everything figured out. I write because I am learning too.&rdquo;
         </h3>
@@ -275,7 +299,7 @@ export default async function HomePage() {
             href="/about"
             className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#283E2C] hover:underline"
           >
-            <span>Read Glory&apos;s Full Story</span>
+            <span>Read Glory&apos;s Full Story & Journey</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

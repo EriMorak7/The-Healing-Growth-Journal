@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans, Lora } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import PublicShell from "@/components/PublicShell";
 import { SITE_CONFIG } from "@/lib/constants";
 
 const playfair = Playfair_Display({
@@ -25,6 +24,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: {
     default: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
     template: `%s | ${SITE_CONFIG.name}`,
@@ -41,6 +41,11 @@ export const metadata: Metadata = {
     "personal growth",
   ],
   authors: [{ name: SITE_CONFIG.author }],
+  alternates: {
+    types: {
+      "application/rss+xml": "http://localhost:3000/feed.xml",
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -63,9 +68,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${jakarta.variable} ${lora.variable} scroll-smooth`}
     >
       <body className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#22160D] antialiased selection:bg-[#CBDECE] selection:text-[#1A281E]">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <PublicShell>{children}</PublicShell>
       </body>
     </html>
   );
