@@ -19,8 +19,8 @@ export interface SyncResult {
  */
 async function downloadFile(url: string, filepath: string): Promise<boolean> {
   try {
-    if (fs.existsSync(filepath) && fs.statSync(filepath).size > 0) {
-      return true;
+    if (fs.existsSync(filepath) && fs.statSync(filepath).size > 100) {
+      return true; // Already downloaded
     }
 
     const dir = path.dirname(filepath);
@@ -32,81 +32,145 @@ async function downloadFile(url: string, filepath: string): Promise<boolean> {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
     });
 
-    if (!res.ok) return false;
+    if (!res.ok) {
+      console.warn(`[Substack Sync] Failed to download ${url}: ${res.status}`);
+      return false;
+    }
 
     const buffer = Buffer.from(await res.arrayBuffer());
     fs.writeFileSync(filepath, buffer);
     return true;
-  } catch (err) {
-    console.error(`[Substack Sync] Failed to download image ${url}:`, err);
+  } catch (err: any) {
+    console.error(`[Substack Sync] Failed to download image ${url}:`, err.message);
     return false;
   }
 }
 
 /**
- * Cleans Substack body HTML, downloads inline images locally,
- * and formats paragraphs and figures
+ * Cleans Substack body HTML, downloads all inline images locally,
+ * extracts captions, and outputs clean editorial figures
  */
 async function processArticleBody(
   bodyHtml: string,
-  slug: string
-): Promise<{ cleanedBody: string; inlineCount: number }> {
-  if (!bodyHtml) return { cleanedBody: "", inlineCount: 0 };
+  slug: string,
+  coverImageUrl?: string | null,
+  localCoverUrl?: string | null
+): Promise<{ cleanedBody: string; inlineCount: number; firstInlineImage: string | null }> {
+  if (!bodyHtml) return { cleanedBody: "", inlineCount: 0, firstInlineImage: null };
 
   const slugDir = path.join(process.cwd(), "public", "images", "articles", slug);
 
-  // Remove Substack subscription CTA buttons and embeds
-  let html = bodyHtml.replace(/<div class="subscription-widget-wrap"[^>]*>[\s\S]*?<\/div>/gi, "");
-  html = html.replace(/<div class="captioned-image-container"[^>]*>([\s\S]*?)<\/div>/gi, "$1");
+  // 1. Strip Substack subscription CTA buttons, embeds, and footers
+  let html = bodyHtml;
+  html = html.replace(/<div class="subscription-widget-wrap"[^>]*>[\s\S]*?<\/div>/gi, "");
+  html = html.replace(/<div class="subscribe-widget"[^>]*>[\s\S]*?<\/div>/gi, "");
+  html = html.replace(/<div class="post-footer"[^>]*>[\s\S]*?<\/div>/gi, "");
+  html = html.replace(/<div class="share-dialog"[^>]*>[\s\S]*?<\/div>/gi, "");
+  html = html.replace(/<p class="button-wrapper"[^>]*>[\s\S]*?<\/p>/gi, "");
+  html = html.replace(/<div class="button-wrap"[^>]*>[\s\S]*?<\/div>/gi, "");
+  html = html.replace(/<div class="pencraft[\s\S]*?<\/div>/gi, "");
 
-  // Find all inline images
-  const imgMatches = Array.from(html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi));
-  const imageMapping: Record<string, string> = {};
+  // 2. Extract and download all images from <figure> / captioned containers
+  const containerRegex = /(?:<div class="captioned-image-container"[^>]*>\s*)?<figure[\s\S]*?<\/figure>(?:\s*<\/div>)?/gi;
+
   let inlineCounter = 1;
+  let firstInlineLocalUrl: string | null = null;
+  const replacedImages: {
+    originalSrc: string;
+    localUrl: string;
+    caption: string;
+    isCover: boolean;
+  }[] = [];
 
-  for (const match of imgMatches) {
-    const src = match[1];
-    if (src.includes("w_56") || src.includes("w_40") || imageMapping[src]) {
-      continue; // Skip avatars or duplicates
+  const matches = Array.from(html.matchAll(containerRegex));
+  const containerReplacements: { matchText: string; replacement: string; isCover: boolean }[] = [];
+
+  for (const match of matches) {
+    const block = match[0];
+    const imgMatch = block.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (!imgMatch) {
+      containerReplacements.push({ matchText: block, replacement: "", isCover: false });
+      continue;
     }
 
+    const src = imgMatch[1];
+    if (src.includes("w_56") || src.includes("w_40") || src.includes("avatar")) {
+      containerReplacements.push({ matchText: block, replacement: "", isCover: false });
+      continue;
+    }
+
+    // Extract caption if present
+    const capMatch = block.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
+    let caption = "";
+    if (capMatch) {
+      caption = capMatch[1]
+        .replace(/<[^>]+>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim();
+    }
+
+    // Determine extension & filename
     const ext = src.includes(".png") ? ".png" : src.includes(".webp") ? ".webp" : ".jpg";
     const filename = `inline_${inlineCounter}${ext}`;
     const localFilepath = path.join(slugDir, filename);
 
-    const ok = await downloadFile(src, localFilepath);
-    if (ok) {
-      const localUrl = `/images/articles/${slug}/${filename}`;
-      imageMapping[src] = localUrl;
-      inlineCounter++;
+    // Download image
+    await downloadFile(src, localFilepath);
+    const localUrl = `/images/articles/${slug}/${filename}`;
+
+    if (!firstInlineLocalUrl) {
+      firstInlineLocalUrl = localUrl;
     }
+
+    // Check if this image matches the cover image
+    const isCover = Boolean(
+      coverImageUrl &&
+        (src.includes(coverImageUrl) ||
+          coverImageUrl.includes(src.split("?")[0].split("/").pop() || ""))
+    );
+
+    replacedImages.push({ originalSrc: src, localUrl, caption, isCover });
+    inlineCounter++;
+
+    const captionHtml = caption
+      ? `\n  <figcaption class="text-xs text-[#866746] italic mt-2.5 font-sans">${caption}</figcaption>`
+      : "";
+
+    const replacement = `\n\n<figure class="my-10 text-center">\n  <img src="${localUrl}" alt="${caption || 'Article Illustration'}" class="rounded-sm mx-auto shadow-md max-h-[550px] w-auto object-cover border border-[#EAE0D1]" />${captionHtml}\n</figure>\n\n`;
+
+    containerReplacements.push({ matchText: block, replacement, isCover });
   }
 
-  // Replace inline img tags with styled figure elements
-  html = html.replace(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi, (match, src) => {
-    const localUrl = imageMapping[src];
-    if (localUrl) {
-      return `\n\n<figure class="my-8 text-center"><img src="${localUrl}" alt="Story Illustration" class="rounded-sm mx-auto shadow-md max-h-[500px] object-cover border border-[#EAE0D1]" /></figure>\n\n`;
-    }
-    return "";
-  });
+  // Apply replacements
+  for (const rep of containerReplacements) {
+    html = html.replace(rep.matchText, rep.replacement);
+  }
 
-  // Convert block transitions
+  // 3. Convert block transitions
   html = html.replace(/<\/p>\s*<p[^>]*>/gi, "\n\n");
   html = html.replace(/<br\s*\/?>/gi, "\n");
   html = html.replace(/<\/h[1-6]>\s*/gi, "\n\n");
   html = html.replace(/<\/blockquote>\s*/gi, "\n\n");
 
-  // Keep figure tags intact while stripping raw html tags from text paragraphs
+  // 4. Split and clean paragraphs while preserving valid <figure> blocks
   const parts = html.split(/(<figure[\s\S]*?<\/figure>)/gi);
   const cleanedParts: string[] = [];
 
-  for (const part of parts) {
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
     if (part.startsWith("<figure")) {
+      // If this is the very first content block in the body, AND an article cover image already exists,
+      // AND this first image matches the cover art and has no unique caption, omit it from the body
+      // so the reader doesn't see the identical image twice right above and below the title.
+      if (cleanedParts.length === 0 && localCoverUrl && replacedImages[0]?.isCover && !replacedImages[0]?.caption) {
+        continue;
+      }
       cleanedParts.push(part.trim());
     } else {
-      // Strip remaining tags
-      const text = part
+      let text = part
         .replace(/<[^>]+>/g, "")
         .replace(/&nbsp;/g, " ")
         .replace(/&amp;/g, "&")
@@ -115,10 +179,16 @@ async function processArticleBody(
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">");
 
+      // Strip recurring Substack footer boilerplate
+      text = text.replace(/Thanks for reading! Subscribe so you don’t miss[\s\S]*$/gi, "");
+      text = text.replace(/Share The healing and Growth Journal[\s\S]*$/gi, "");
+      text = text.replace(/Subscribe so you don’t miss important lessons[\s\S]*$/gi, "");
+      text = text.replace(/Subscribe now\s*/gi, "");
+
       const paragraphs = text
         .split("\n\n")
         .map((p) => p.trim())
-        .filter((p) => p.length > 0);
+        .filter((p) => p.length > 0 && !p.startsWith("Subscribe") && !p.startsWith("Share"));
 
       cleanedParts.push(...paragraphs);
     }
@@ -127,6 +197,7 @@ async function processArticleBody(
   return {
     cleanedBody: cleanedParts.join("\n\n"),
     inlineCount: inlineCounter - 1,
+    firstInlineImage: firstInlineLocalUrl,
   };
 }
 
@@ -250,13 +321,21 @@ export async function syncSubstackPosts(): Promise<SyncResult> {
         }
       }
 
-      // Process body content and inline images
-      const { cleanedBody } = await processArticleBody(bodyHtml, slug);
+      // Process body content, download inline images locally, extract captions
+      const { cleanedBody, firstInlineImage } = await processArticleBody(
+        bodyHtml,
+        slug,
+        coverImageUrl,
+        localCover
+      );
+
+      // Fallback to first inline image as featured cover if no post cover was specified
+      const finalCover = localCover || firstInlineImage || null;
 
       // Excerpt / subtitle
       let excerpt = (post.subtitle || post.description || "").trim();
       if (!excerpt && cleanedBody) {
-        const firstP = cleanedBody.split("\n\n")[0] || "";
+        const firstP = cleanedBody.split("\n\n").find((p) => !p.startsWith("<figure")) || "";
         excerpt = firstP.length > 160 ? firstP.slice(0, 160) + "..." : firstP;
       }
 
@@ -279,7 +358,7 @@ export async function syncSubstackPosts(): Promise<SyncResult> {
             slug,
             excerpt,
             body: cleanedBody,
-            featuredImage: localCover,
+            featuredImage: finalCover,
             authorName: "Glory",
             readingTime,
             isPublished: true,
@@ -296,14 +375,14 @@ export async function syncSubstackPosts(): Promise<SyncResult> {
         newCount++;
         console.log(`[Substack Sync] Created new piece: "${title}"`);
       } else {
-        // Update existing article with latest content/cover if needed
+        // Update existing article with latest clean content/cover
         await db.article.update({
           where: { slug },
           data: {
             title,
             excerpt,
             body: cleanedBody || existing.body,
-            featuredImage: localCover || existing.featuredImage,
+            featuredImage: finalCover || existing.featuredImage,
             isSundayLove,
             readingTime,
             publishedAt: postDate,
@@ -335,11 +414,13 @@ export async function syncSubstackPosts(): Promise<SyncResult> {
       revalidatePath("/sunday-love-series");
       revalidatePath("/sitemap.xml");
       revalidatePath("/feed.xml");
-    } catch {
-      // Revalidation inside some background contexts is non-fatal
+    } catch (e) {
+      // Revalidation during non-request context is ignored
     }
 
-    console.log(`[Substack Sync Complete] Fetched ${posts.length}, ${newCount} new, ${updatedCount} updated.`);
+    console.log(
+      `[Substack Sync Complete] Fetched ${posts.length}, ${newCount} new, ${updatedCount} updated.`
+    );
 
     return {
       success: true,

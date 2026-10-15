@@ -180,34 +180,39 @@ export default async function ArticlePage({ params }: ArticleSlugProps) {
 
       {/* Article Body */}
       <div className="prose prose-stone max-w-none text-[#22160D] font-editorial text-xl sm:text-2xl leading-[1.8] space-y-8">
-        {article.body.split("\n\n").map((block, index) => {
-          const trimmed = block.trim();
-          if (!trimmed) return null;
+        {(() => {
+          let hasRenderedDropCap = false;
+          return article.body.split("\n\n").map((block, index) => {
+            const trimmed = block.trim();
+            if (!trimmed) return null;
 
-          // Render figure/img blocks as raw HTML
-          if (trimmed.startsWith("<figure") || trimmed.startsWith("<img")) {
-            return (
-              <div
-                key={index}
-                dangerouslySetInnerHTML={{ __html: trimmed }}
-              />
-            );
-          }
+            // Render figure/img blocks as raw HTML
+            if (trimmed.startsWith("<figure") || trimmed.startsWith("<img")) {
+              return (
+                <div
+                  key={index}
+                  className="my-8 not-prose"
+                  dangerouslySetInnerHTML={{ __html: trimmed }}
+                />
+              );
+            }
 
-          // First text paragraph gets editorial drop cap
-          if (index === 0) {
-            return (
-              <p
-                key={index}
-                className="first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#283E2C] first-letter:leading-none text-[#362618]"
-              >
-                {trimmed}
-              </p>
-            );
-          }
+            // First text paragraph gets editorial drop cap
+            if (!hasRenderedDropCap) {
+              hasRenderedDropCap = true;
+              return (
+                <p
+                  key={index}
+                  className="first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#283E2C] first-letter:leading-none text-[#362618]"
+                >
+                  {trimmed}
+                </p>
+              );
+            }
 
-          return <p key={index}>{trimmed}</p>;
-        })}
+            return <p key={index}>{trimmed}</p>;
+          });
+        })()}
       </div>
 
       {/* Tags List */}
