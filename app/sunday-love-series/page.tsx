@@ -4,6 +4,7 @@ import { Heart, Feather, Calendar, ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
 import ArticleCard from "@/components/ArticleCard";
 import SubstackCta from "@/components/SubstackCta";
+import { checkAndTriggerAutoSync } from "@/lib/auto-sync";
 
 export const metadata = {
   title: "The Sunday Love Series — Letters, Poems & Reflections",
@@ -31,6 +32,9 @@ export const metadata = {
 };
 
 async function getSundayLoveData() {
+  // Fire background Substack sync if stale
+  checkAndTriggerAutoSync(10).catch(() => {});
+
   const articles = await db.article.findMany({
     where: {
       isPublished: true,

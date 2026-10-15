@@ -4,6 +4,7 @@ import { Search, Filter, BookOpen } from "lucide-react";
 import { db } from "@/lib/db";
 import { FOUR_PILLARS } from "@/lib/constants";
 import ArticleCard from "@/components/ArticleCard";
+import { checkAndTriggerAutoSync } from "@/lib/auto-sync";
 
 export const metadata = {
   title: "The Journal — Archive & Reflections",
@@ -20,6 +21,9 @@ interface JournalPageProps {
 }
 
 export default async function JournalPage({ searchParams }: JournalPageProps) {
+  // Fire background Substack sync if stale
+  checkAndTriggerAutoSync(10).catch(() => {});
+
   const selectedCategory = searchParams.category;
   const searchQuery = searchParams.q;
 

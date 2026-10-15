@@ -7,10 +7,14 @@ import PillarCard from "@/components/PillarCard";
 import ArticleCard from "@/components/ArticleCard";
 import ProductCard from "@/components/ProductCard";
 import SubstackCta from "@/components/SubstackCta";
+import { checkAndTriggerAutoSync } from "@/lib/auto-sync";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getHomeData() {
+  // Fire background Substack sync if stale
+  checkAndTriggerAutoSync(10).catch(() => {});
+
   const [articles, products] = await Promise.all([
     db.article.findMany({
       where: { isPublished: true },

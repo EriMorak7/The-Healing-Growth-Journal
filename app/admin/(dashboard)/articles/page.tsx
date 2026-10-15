@@ -3,6 +3,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { PlusCircle } from "lucide-react";
 import ArticlesManager from "@/components/admin/ArticlesManager";
+import SubstackSyncButton from "@/components/admin/SubstackSyncButton";
 
 export default async function AdminArticlesPage() {
   const [articles, categories] = await Promise.all([
@@ -31,7 +32,8 @@ export default async function AdminArticlesPage() {
           </p>
         </div>
 
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <SubstackSyncButton />
           <Link
             href="/admin/articles/new"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm bg-[#283E2C] text-[#FAF7F2] hover:bg-[#1D2D20] text-xs uppercase tracking-widest font-semibold transition-all shadow-sm"

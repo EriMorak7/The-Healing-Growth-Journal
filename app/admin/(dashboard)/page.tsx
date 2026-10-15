@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Eye,
 } from "lucide-react";
+import SubstackSyncButton from "@/components/admin/SubstackSyncButton";
 
 async function getDashboardMetrics() {
   const [
@@ -25,6 +26,7 @@ async function getDashboardMetrics() {
     unreadInquiries,
     recentArticles,
     recentInquiries,
+    lastSubstackSync,
   ] = await Promise.all([
     db.article.count(),
     db.article.count({ where: { isSundayLove: true } }),
@@ -42,6 +44,7 @@ async function getDashboardMetrics() {
       take: 5,
       orderBy: { createdAt: "desc" },
     }),
+    db.siteSetting.findUnique({ where: { key: "last_substack_sync" } }),
   ]);
 
   return {
@@ -52,6 +55,7 @@ async function getDashboardMetrics() {
     unreadInquiries,
     recentArticles,
     recentInquiries,
+    lastSubstackSync,
   };
 }
 
@@ -110,7 +114,8 @@ export default async function AdminOverviewPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <SubstackSyncButton lastSyncTime={metrics.lastSubstackSync?.value} />
           <Link
             href="/admin/articles/new"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm bg-[#283E2C] text-[#FAF7F2] hover:bg-[#1D2D20] text-xs uppercase tracking-widest font-semibold transition-all shadow-sm"
