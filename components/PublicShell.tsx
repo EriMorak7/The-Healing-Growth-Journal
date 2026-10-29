@@ -20,7 +20,7 @@ export default function PublicShell({
   return (
     <>
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-[82px] lg:pt-[144px]">{children}</main>
       <Footer />
     </>
   );
