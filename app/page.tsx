@@ -7,6 +7,7 @@ import PillarCard from "@/components/PillarCard";
 import ArticleCard from "@/components/ArticleCard";
 import ProductCard from "@/components/ProductCard";
 import SubstackCta from "@/components/SubstackCta";
+import SubstackInvitation from "@/components/SubstackInvitation";
 import { checkAndTriggerAutoSync } from "@/lib/auto-sync";
 
 export const revalidate = 60; // Revalidate every 60 seconds
@@ -231,12 +232,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5.5 Substack Invitation Component */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SubstackCta
-          title="The Sunday Sanctuary: Letters for the Tender Heart"
-          description="Every Sunday, Glory sends out reflective essays, poems, and guided journal prompts to thousands of thoughtful readers around the world. No algorithm, just words that feel like a warm cup of tea."
-        />
+      {/* 5.5 Substack Invitation Component ("Stay With Us / Dear Brave Mind") */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SubstackInvitation />
       </section>
 
       {/* 5.6 Shop Preview (Digital Resources) */}

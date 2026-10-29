@@ -8,7 +8,8 @@ let isSyncing = false;
  * If so, fires a background sync without blocking the current page render.
  */
 export async function checkAndTriggerAutoSync(intervalMinutes: number = 10): Promise<void> {
-  if (isSyncing) return;
+  // Never fire background API sync during Next.js static build phase
+  if (process.env.NEXT_PHASE === "phase-production-build" || isSyncing) return;
 
   try {
     const setting = await db.siteSetting.findUnique({

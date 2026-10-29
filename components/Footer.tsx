@@ -87,14 +87,6 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link
-                  href="/prompts"
-                  className="text-[#D3BEA1] hover:text-white transition-colors"
-                >
-                  Prompt Library
-                </Link>
-              </li>
             </ul>
           </div>
 

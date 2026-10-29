@@ -1,30 +1,15 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans, Lora } from "next/font/google";
 import "./globals.css";
 import PublicShell from "@/components/PublicShell";
 import { SITE_CONFIG } from "@/lib/constants";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-editorial",
-  display: "swap",
-});
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXTAUTH_URL ||
+  "https://thehealingandgrowthjournal.com";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
     template: `%s | ${SITE_CONFIG.name}`,
@@ -39,17 +24,19 @@ export const metadata: Metadata = {
     "journal prompts",
     "Sunday love series",
     "personal growth",
+    "counselling psychology",
+    "Glory Ekanem",
   ],
   authors: [{ name: SITE_CONFIG.author }],
   alternates: {
     types: {
-      "application/rss+xml": "http://localhost:3000/feed.xml",
+      "application/rss+xml": `${siteUrl}/feed.xml`,
     },
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "http://localhost:3000",
+    url: siteUrl,
     siteName: SITE_CONFIG.name,
     title: `${SITE_CONFIG.name} — ${SITE_CONFIG.tagline}`,
     description:
@@ -62,11 +49,42 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: SITE_CONFIG.name,
+        url: siteUrl,
+        logo: `${siteUrl}${SITE_CONFIG.logoUrl}`,
+        sameAs: [SITE_CONFIG.substackUrl],
+        description: SITE_CONFIG.vision,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: SITE_CONFIG.name,
+        description: SITE_CONFIG.tagline,
+        publisher: {
+          "@id": `${siteUrl}/#organization`,
+        },
+      },
+    ],
+  };
+
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${jakarta.variable} ${lora.variable} scroll-smooth`}
+      className="scroll-smooth"
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#22160D] antialiased selection:bg-[#CBDECE] selection:text-[#1A281E]">
         <PublicShell>{children}</PublicShell>
       </body>

@@ -63,8 +63,8 @@ export default async function StartHerePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 space-y-20">
-      {/* Page Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
+      {/* Page Header with Exact Brief Text */}
+      <div className="text-center space-y-6 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EDE6] text-[#283E2C] text-xs uppercase tracking-widest font-semibold">
           <Compass className="w-3.5 h-3.5" />
           <span>Reader Orientation</span>
@@ -72,18 +72,30 @@ export default async function StartHerePage() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-[#22160D] tracking-tight">
           Where would you like to begin?
         </h1>
-        <p className="text-base sm:text-lg font-editorial text-[#4F3925] leading-relaxed">
-          You don&apos;t have to read every article in order. We have curated six intentional pathways based on what your heart and mind may be navigating right now.
-        </p>
+        <div className="space-y-4 font-editorial text-lg text-[#4F3925] leading-relaxed text-left sm:text-center">
+          <p>
+            These articles were carefully written with love and selected to help
+            you navigate different seasons of life. Whether you are grieving a
+            loss, healing from heartbreak, facing a difficult season, or learning
+            to find yourself again, we hope you find something here that speaks to
+            your heart and meets you where you are.
+          </p>
+          <p className="italic font-serif text-xl text-[#283E2C] pt-1">
+            You don&apos;t have to figure everything out at once. Start with the
+            section that feels closest to what you&apos;re experiencing, take what
+            you need, and allow yourself the time and grace to heal, love, and
+            grow.
+          </p>
+        </div>
       </div>
 
       {/* Quick Pathway Jumper Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-2 max-w-4xl mx-auto pb-8 border-b border-[#EAE0D1]">
+      <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-4xl mx-auto pb-8 border-b border-[#EAE0D1]">
         {SIX_PATHWAYS.map((p, i) => (
           <a
             key={p.slug}
             href={`#${p.slug}`}
-            className="px-3.5 py-1.5 text-xs font-sans text-[#4F3925] bg-[#F4ECE0] hover:bg-[#283E2C] hover:text-[#FAF7F2] rounded-sm transition-colors border border-[#E6DCCE]"
+            className="px-4 py-2 text-xs font-sans text-[#4F3925] bg-[#FAF7F2] hover:bg-[#283E2C] hover:text-[#FAF7F2] rounded-sm transition-colors border border-[#E6DCCE] shadow-sm"
           >
             {i + 1}. {p.name.replace("Start here if ", "")}
           </a>
@@ -171,20 +183,6 @@ export default async function StartHerePage() {
                   </div>
                 );
               })()}
-            </div>
-
-            {/* Related Evergreen SEO Prompt Link */}
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#F4ECE0]/50 p-4 rounded-sm border border-[#E6DCCE]">
-              <span className="text-xs text-[#4F3925] font-sans">
-                Need guided reflective questions? Check our dedicated prompt guide:
-              </span>
-              <Link
-                href="/prompts"
-                className="text-xs uppercase tracking-widest font-semibold text-[#283E2C] inline-flex items-center gap-1 hover:underline"
-              >
-                <span>View Prompts Library</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
             </div>
           </div>
         ))}

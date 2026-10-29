@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { SITE_CONFIG } from "@/lib/constants";
 
-const BASE_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXTAUTH_URL ||
+  "https://thehealingandgrowthjournal.com";
 
 function escapeXml(unsafe: string): string {
   return unsafe
